@@ -1,0 +1,41 @@
+{
+  "name": "tmd-editor",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "lint": "eslint --fix -c .eslintrc.cjs",
+    "format": "prettier -w ."
+  },
+  "devDependencies": {
+    "@types/node": "^18.11.7",
+    "@typescript-eslint/eslint-plugin": "^5.0.0",
+    "@typescript-eslint/parser": "^5.41.0",
+    "autoprefixer": "^10.4.13",
+    "eslint": "^8.0.1",
+    "eslint-config-standard-with-typescript": "^23.0.0",
+    "eslint-plugin-import": "^2.25.2",
+    "eslint-plugin-n": "^15.0.0",
+    "eslint-plugin-promise": "^6.0.0",
+    "postcss": "^8.4.18",
+    "sass": "^1.55.0",
+    "typescript": "*",
+    "vite": "^3.2.0"
+  },
+  "dependencies": {
+    "prosemirror-commands": "^1.3.1",
+    "prosemirror-dropcursor": "^1.6.1",
+    "prosemirror-gapcursor": "^1.3.1",
+    "prosemirror-history": "^1.3.0",
+    "prosemirror-inputrules": "^1.2.0",
+    "prosemirror-keymap": "^1.2.0",
+    "prosemirror-markdown": "^1.10.1",
+    "prosemirror-model": "^1.18.1",
+    "prosemirror-schema-list": "^1.2.2",
+    "prosemirror-state": "^1.4.2",
+    "prosemirror-view": "^1.29.0"
+  }
+}
