@@ -17,12 +17,14 @@ body {
 
 .ProseMirror {
   outline: none;
+  white-space: pre-wrap;
 }
 
 blockquote {
-  border-left: violet solid 2px;
+  border-left: 3px solid rgba(0, 0, 0, 0.37);
   margin: 16px 0;
   padding: 0 16px;
+  color: rgba(0, 0, 0, 0.4);
 }
 
 pre {
@@ -39,4 +41,13 @@ ol {
 hr {
   border: none;
   border-top: 1px solid rgba(0, 0, 0, 0.09);
+}
+
+p > code {
+  padding: 2px 4px;
+  background-color: #ff889937;
+  font-size: 14px;
+  color: #ff6699;
+  border-radius: 4px;
+  font-family: "Courier New", Courier, monospace;
 }

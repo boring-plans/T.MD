@@ -5,10 +5,11 @@ import { EditorView } from "prosemirror-view";
 import { history } from "prosemirror-history";
 import { keymap } from "prosemirror-keymap";
 import { baseKeymap } from "prosemirror-commands";
-import { buildInputRules } from "./prosemirror/inputrules";
-import { buildKeymap } from "./prosemirror/keymap";
+import { buildInputRules } from "./base/input-rules";
+import { buildKeymap } from "./base/keymaps";
 import { dropCursor } from "prosemirror-dropcursor";
 import { gapCursor } from "prosemirror-gapcursor";
+import { buildInlineCode } from "./plugins/marks";
 
 document.querySelector<HTMLDivElement>("#app")!.innerHTML =
   '<div id="editor"></div>';
@@ -18,6 +19,7 @@ schema.nodes.horizontal_rule.spec.selectable = false;
 const state = EditorState.create({
   schema,
   plugins: [
+    buildInlineCode(),
     buildInputRules(schema),
     history(),
     keymap(buildKeymap(schema)),

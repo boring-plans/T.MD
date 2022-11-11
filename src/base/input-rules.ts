@@ -2,10 +2,11 @@ import {
   inputRules,
   wrappingInputRule,
   textblockTypeInputRule,
-  InputRule,
 } from "prosemirror-inputrules";
 import { NodeType, Schema } from "prosemirror-model";
+import { InputRule } from "prosemirror-inputrules";
 import { EditorState, Transaction } from "prosemirror-state";
+import { inlineCodeRule } from "./inline-code";
 
 /// Given a blockquote node type, returns an input rule that turns `"> "`
 /// at the start of a textblock into a blockquote.
@@ -54,27 +55,22 @@ function headingRule(nodeType: NodeType, maxLevel: number) {
  * What's more, when the new line is the bottom of whole document,
  * or next line is horizontal line already, add one new line.
  */
-function horizontalRule(nodeType: NodeType) {
+function horizontalRuleRule(nodeType: NodeType) {
   return new InputRule(
     /^(_{3}|-{3}|\*{3})$/,
-    (
-      state: EditorState,
-      match: RegExpMatchArray,
-      start: number,
-      end: number
-    ) => {
+    (state: EditorState, match: RegExpMatchArray, from: number, to: number) => {
       if (match[1]) {
-        let tr: Transaction = state.tr;
-        const $start = tr.doc.resolve(start);
+        const tr = state.tr;
+        const $start = tr.doc.resolve(from);
 
         if (
           $start.after() === $start.end(-1) ||
           $start.doc.resolve($start.after()).nodeAfter?.type === nodeType
         ) {
-          tr = tr.insert($start.after(), state.schema.nodes.paragraph.create());
+          tr.insert($start.after(), state.schema.nodes.paragraph.create());
         }
 
-        return tr.delete(start, end).insert(start, nodeType.create());
+        return tr.delete(from, to).insert(from, nodeType.create());
       }
 
       return null;
@@ -85,15 +81,15 @@ function horizontalRule(nodeType: NodeType) {
 /// A set of input rules for creating the basic block quotes, lists,
 /// code blocks, and heading.
 export function buildInputRules(schema: Schema) {
-  const rules = [];
-  let type: NodeType;
-
-  if ((type = schema.nodes.blockquote)) rules.push(blockQuoteRule(type));
-  if ((type = schema.nodes.ordered_list)) rules.push(orderedListRule(type));
-  if ((type = schema.nodes.bullet_list)) rules.push(bulletListRule(type));
-  if ((type = schema.nodes.code_block)) rules.push(codeBlockRule(type));
-  if ((type = schema.nodes.heading)) rules.push(headingRule(type, 6));
-  if ((type = schema.nodes.horizontal_rule)) rules.push(horizontalRule(type));
+  const rules = [
+    blockQuoteRule(schema.nodes.blockquote),
+    orderedListRule(schema.nodes.ordered_list),
+    bulletListRule(schema.nodes.bullet_list),
+    codeBlockRule(schema.nodes.code_block),
+    headingRule(schema.nodes.heading, 6),
+    horizontalRuleRule(schema.nodes.horizontal_rule),
+    ...inlineCodeRule(),
+  ];
 
   return inputRules({ rules });
 }
