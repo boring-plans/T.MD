@@ -1,4 +1,3 @@
-import { Node } from "prosemirror-model";
 import { EditorState, Plugin } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
 
@@ -11,8 +10,7 @@ function stepOut(view: EditorView, prevState: EditorState) {
   const prevFrom = prevState.selection.from,
     prevTo = prevState.selection.to;
 
-  const tr = view.state.tr;
-  const currNodes: (Node | null)[] = [];
+  const currNodesPosList: number[] = [];
   let currStart, currStop;
   let prevStart, prevStop;
 
@@ -24,8 +22,8 @@ function stepOut(view: EditorView, prevState: EditorState) {
     currStop = currTo + 1;
   }
 
-  view.state.doc.nodesBetween(currStart, currStop, (node) => {
-    currNodes.push(node);
+  view.state.doc.nodesBetween(currStart, currStop, (node, pos) => {
+    node.isText && currNodesPosList.push(pos);
   });
 
   if (prevTo > prevFrom) {
@@ -37,14 +35,48 @@ function stepOut(view: EditorView, prevState: EditorState) {
   }
 
   prevState.doc.nodesBetween(prevStart, prevStop, (node, pos) => {
-    if (inlineCodeMark.isInSet(node.marks) && !currNodes.includes(node)) {
+    if (
+      node.isText &&
+      inlineCodeMark.isInSet(node.marks) &&
+      !currNodesPosList.includes(pos)
+    ) {
       const match = node.textContent.match(/`.+?`/);
 
       if (match) {
+        const tr = view.state.tr;
         tr.delete(pos + node.nodeSize - 1, pos + node.nodeSize).delete(
           pos,
           pos + 1
         );
+        view.dispatch(tr);
+      }
+    }
+  });
+}
+
+function stepIn(view: EditorView) {
+  const from = view.state.selection.from,
+    to = view.state.selection.to;
+  const inlineCodeMark = view.state.schema.marks.code;
+
+  let start, stop;
+  if (to > from) {
+    start = from;
+    stop = to;
+  } else {
+    start = from - 1;
+    stop = to + 1;
+  }
+
+  view.state.doc.nodesBetween(start, stop, (node, pos) => {
+    if (node.isText && inlineCodeMark.isInSet(node.marks)) {
+      const match = node.textContent.match(/^`.+?`$/);
+
+      if (!match) {
+        const tr = view.state.tr;
+        tr.insertText("`", pos + node.nodeSize)
+          .insertText("`", pos)
+          .addMark(pos, pos + 1, inlineCodeMark.create());
         view.dispatch(tr);
       }
     }
@@ -90,6 +122,7 @@ export function buildInlineCodeToggleOrigin(): Plugin {
       return {
         update(view, prevState) {
           stepOut(view, prevState);
+          stepIn(view);
         },
       };
     },
