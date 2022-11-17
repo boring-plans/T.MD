@@ -44,10 +44,18 @@ function stepOut(view: EditorView, prevState: EditorState) {
 
       if (match) {
         const tr = view.state.tr;
-        tr.delete(pos + node.nodeSize - 1, pos + node.nodeSize).delete(
-          pos,
-          pos + 1
-        );
+
+        // content may have been changed already
+        if (tr.doc.content.size >= pos + node.nodeSize) {
+          tr.replaceWith(
+            pos,
+            pos + node.nodeSize,
+            view.state.schema.text(node.textContent.slice(1, -1), [
+              inlineCodeMark.create(),
+            ])
+          );
+        }
+
         view.dispatch(tr);
       }
     }
@@ -74,10 +82,16 @@ function stepIn(view: EditorView) {
 
       if (!match) {
         const tr = view.state.tr;
-        tr.insertText("`", pos + node.nodeSize)
-          .insertText("`", pos)
-          .addMark(pos, pos + 1, inlineCodeMark.create());
-        view.dispatch(tr);
+        const mark = inlineCodeMark.create();
+
+        if (tr.doc.content.size >= pos + node.nodeSize) {
+          tr.replaceWith(
+            pos,
+            pos + node.nodeSize,
+            view.state.schema.text(`\`${node.textContent}\``, [mark])
+          );
+          view.dispatch(tr);
+        }
       }
     }
   });

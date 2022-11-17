@@ -4,9 +4,8 @@ import {
   textblockTypeInputRule,
 } from "prosemirror-inputrules";
 import { NodeType, Schema } from "prosemirror-model";
-import { InputRule } from "prosemirror-inputrules";
-import { EditorState, Transaction } from "prosemirror-state";
 import { inlineCodeRule } from "./inline-code";
+import { horizontalRuleRule } from "./horizontal-rule";
 
 /// Given a blockquote node type, returns an input rule that turns `"> "`
 /// at the start of a textblock into a blockquote.
@@ -47,34 +46,6 @@ function headingRule(nodeType: NodeType, maxLevel: number) {
     new RegExp("^(#{1," + maxLevel + "})\\s$"),
     nodeType,
     (match) => ({ level: match[1].length })
-  );
-}
-
-/**
- * Add a horizontal line when typing in '---' or '___' or '***' in one new line.
- * What's more, when the new line is the bottom of whole document,
- * or next line is horizontal line already, add one new line.
- */
-function horizontalRuleRule(nodeType: NodeType) {
-  return new InputRule(
-    /^(_{3}|-{3}|\*{3})$/,
-    (state: EditorState, match: RegExpMatchArray, from: number, to: number) => {
-      if (match[1]) {
-        const tr = state.tr;
-        const $start = tr.doc.resolve(from);
-
-        if (
-          $start.after() === $start.end(-1) ||
-          $start.doc.resolve($start.after()).nodeAfter?.type === nodeType
-        ) {
-          tr.insert($start.after(), state.schema.nodes.paragraph.create());
-        }
-
-        return tr.delete(from, to).insert(from, nodeType.create());
-      }
-
-      return null;
-    }
   );
 }
 
