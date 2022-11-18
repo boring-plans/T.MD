@@ -90,7 +90,7 @@ function stepIn(view: EditorView) {
 
   view.state.doc.nodesBetween(start, stop, (node, pos) => {
     if (node.isText && inlineCodeMark.isInSet(node.marks)) {
-      const match = node.textContent.match(/^`.+?`$/);
+      const match = node.textContent.match(/^`.*?`$/);
 
       if (!match) {
         const tr = view.state.tr;
@@ -128,6 +128,11 @@ function stepIn(view: EditorView) {
 
           view.dispatch(tr);
         }
+      } else if (node.textContent === "``") {
+        // Node content changes into ``.
+        const tr = view.state.tr;
+        tr.removeMark(pos, pos + 2, inlineCodeMark);
+        view.dispatch(tr);
       }
     }
   });

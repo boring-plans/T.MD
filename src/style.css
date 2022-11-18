@@ -22,14 +22,14 @@ body {
 }
 
 blockquote {
-  border-left: 3px solid rgba(0, 0, 0, 0.37);
-  margin: 16px 0;
-  padding: 0 16px;
-  color: rgba(0, 0, 0, 0.4);
+  border-left: 3px solid rgba(38, 38, 38, 0.37);
+  margin: 12px 0;
+  padding: 0 12px;
+  color: rgba(38, 38, 38, 0.6);
 }
 
 pre {
-  background-color: #f2f3f862;
+  background-color: rgba(0, 10, 32, 0.04);
   padding: 12px;
   border-radius: 8px;
 }
@@ -41,14 +41,14 @@ ol {
 
 hr {
   border: none;
-  border-top: 1px solid rgba(0, 0, 0, 0.09);
+  border-top: 1px solid rgba(0, 10, 32, 0.08);
 }
 
 p > code {
-  padding: 2px 4px;
-  background-color: #ff889937;
+  padding: 2.5px 5px;
   font-size: 14px;
-  color: #ff6699;
+  color: rgba(38, 38, 38, 0.75);
+  background-color: rgba(0, 10, 32, 0.04);
   border-radius: 4px;
   font-family: "Courier New", Courier, monospace;
 }

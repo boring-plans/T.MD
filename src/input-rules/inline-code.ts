@@ -25,7 +25,12 @@ export function inlineCodeBefore() {
   return new InputRule(
     /`(.+?)`$/,
     (state: EditorState, match: RegExpMatchArray, from: number, to: number) => {
-      if (match && !hasMarked(from, to, state)) {
+      if (
+        match &&
+        !match[0].startsWith("``") &&
+        !hasMarked(from, to, state) &&
+        state.doc.content.size >= to
+      ) {
         const tr = state.tr;
         tr.replaceWith(
           from,
@@ -62,7 +67,8 @@ export function inlineCodeAfter() {
 
         if (
           matchResult &&
-          !hasMarked(from, from + matchResult[1].length + 1, state)
+          !hasMarked(from, from + matchResult[1].length + 1, state) &&
+          state.doc.content.size >= to + matchResult[1].length + 1
         ) {
           const inlineCodeMark = state.schema.marks.code.create();
           tr.replaceWith(
