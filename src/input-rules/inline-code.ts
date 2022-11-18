@@ -19,7 +19,7 @@ function hasMarked(from: number, to: number, state: EditorState) {
 }
 
 /**
- * '`' after '`sth'
+ * ` after `sth
  */
 export function inlineCodeBefore() {
   return new InputRule(
@@ -42,7 +42,7 @@ export function inlineCodeBefore() {
 }
 
 /**
- * '`' before 'sth`'
+ * ` before sth`
  */
 export function inlineCodeAfter() {
   return new InputRule(
@@ -80,7 +80,7 @@ export function inlineCodeAfter() {
 }
 
 /**
- * insert sth into '``'
+ * insert sth into ``
  */
 export function inlineCodeBetween() {
   return new InputRule(

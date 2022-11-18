@@ -1,8 +1,14 @@
+import { Node } from "prosemirror-model";
 import { EditorState, Plugin } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
 
 const MAX_MATCH = 500;
 
+/**
+ * Hide ` when stepping out.
+ * @param view
+ * @param prevState
+ */
 function stepOut(view: EditorView, prevState: EditorState) {
   const inlineCodeMark = view.state.schema.marks.code;
   const currFrom = view.state.selection.from,
@@ -10,7 +16,7 @@ function stepOut(view: EditorView, prevState: EditorState) {
   const prevFrom = prevState.selection.from,
     prevTo = prevState.selection.to;
 
-  const currNodesPosList: number[] = [];
+  const currNodesPosList: [number, Node][] = [];
   let currStart, currStop;
   let prevStart, prevStop;
 
@@ -23,7 +29,7 @@ function stepOut(view: EditorView, prevState: EditorState) {
   }
 
   view.state.doc.nodesBetween(currStart, currStop, (node, pos) => {
-    node.isText && currNodesPosList.push(pos);
+    node.isText && currNodesPosList.push([pos, node]);
   });
 
   if (prevTo > prevFrom) {
@@ -34,18 +40,20 @@ function stepOut(view: EditorView, prevState: EditorState) {
     prevStop = prevTo + 1;
   }
 
+  // Since both position and node content may have changed,
+  // we need to compare both.
   prevState.doc.nodesBetween(prevStart, prevStop, (node, pos) => {
     if (
       node.isText &&
       inlineCodeMark.isInSet(node.marks) &&
-      !currNodesPosList.includes(pos)
+      !currNodesPosList.some(([p, n]) => p === pos || n.eq(node))
     ) {
       const match = node.textContent.match(/`.+?`/);
 
       if (match) {
         const tr = view.state.tr;
 
-        // content may have been changed already
+        // content may have changed already
         if (tr.doc.content.size >= pos + node.nodeSize) {
           tr.replaceWith(
             pos,
@@ -62,6 +70,10 @@ function stepOut(view: EditorView, prevState: EditorState) {
   });
 }
 
+/**
+ * Show ` when stepping in
+ * @param view
+ */
 function stepIn(view: EditorView) {
   const from = view.state.selection.from,
     to = view.state.selection.to;
@@ -84,12 +96,36 @@ function stepIn(view: EditorView) {
         const tr = view.state.tr;
         const mark = inlineCodeMark.create();
 
-        if (tr.doc.content.size >= pos + node.nodeSize) {
-          tr.replaceWith(
-            pos,
-            pos + node.nodeSize,
-            view.state.schema.text(`\`${node.textContent}\``, [mark])
-          );
+        const nodeEnd = pos + node.nodeSize;
+        if (tr.doc.content.size >= nodeEnd) {
+          // When some content has been selected,
+          // we directly add a ` pair
+          if (to > from) {
+            tr.replaceWith(
+              pos,
+              nodeEnd,
+              view.state.schema.text(`\`${node.textContent}\``, [mark])
+            );
+          } else {
+            // But if directly clicking on the node with inline code mark,
+            // we hope cursor is located to the right spot after adding ` pair.
+            tr.replaceWith(
+              to,
+              nodeEnd,
+              view.state.schema.text(
+                `${node.textContent.slice(to - pos, nodeEnd - pos)}\``,
+                [mark]
+              )
+            ).replaceWith(
+              pos,
+              from,
+              view.state.schema.text(
+                `\`${node.textContent.slice(0, from - pos)}`,
+                [mark]
+              )
+            );
+          }
+
           view.dispatch(tr);
         }
       }
