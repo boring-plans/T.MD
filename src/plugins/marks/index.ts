@@ -1,5 +1,5 @@
-import { buildInlineCodeToggleOrigin } from "./inline-code";
+import { buildInlineCodeStepOut } from "./inline-code";
 
-export function buildToggleMarksOrigin() {
-  return [buildInlineCodeToggleOrigin()];
+export function buildMarksStepOut() {
+  return [buildInlineCodeStepOut()];
 }

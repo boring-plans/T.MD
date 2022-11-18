@@ -35,9 +35,7 @@ export function inlineCodeBefore() {
         tr.replaceWith(
           from,
           to,
-          state.schema.text(`\`${match[1]}\``, [
-            state.schema.marks.code.create(),
-          ])
+          state.schema.text(`${match[1]}`, [state.schema.marks.code.create()])
         );
         return tr;
       }
@@ -74,8 +72,8 @@ export function inlineCodeAfter() {
           tr.replaceWith(
             from,
             to + matchResult[1].length + 1,
-            state.schema.text(`${matchResult[1]}\``, [inlineCodeMark])
-          ).replaceWith(from, from, state.schema.text("`", [inlineCodeMark]));
+            state.schema.text(`${matchResult[1]}`, [inlineCodeMark])
+          );
           return tr;
         }
       }
@@ -109,10 +107,22 @@ export function inlineCodeBetween() {
           matchResult &&
           !hasMarked(from, from + matchResult[1].length + 1, state)
         ) {
-          tr.insertText(match[1].slice(-1), to).addMark(
+          const inlineCodeMark = state.schema.marks.code.create();
+          if (matchResult[1].slice(match[1].length)) {
+            tr.replaceWith(
+              to,
+              matchResult[1].length + from + 1,
+              state.schema.text(matchResult[1].slice(match[1].length), [
+                inlineCodeMark,
+              ])
+            );
+          } else {
+            tr.delete(to, matchResult[1].length + from + 1);
+          }
+          tr.replaceWith(
             from,
-            from + matchResult[1].length + 2,
-            state.schema.marks.code.create()
+            to,
+            state.schema.text(match[1], [inlineCodeMark])
           );
           return tr;
         }

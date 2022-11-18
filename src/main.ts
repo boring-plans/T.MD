@@ -9,7 +9,7 @@ import { buildInputRules } from "./input-rules/base";
 import { buildKeymap } from "./keymaps";
 import { dropCursor } from "prosemirror-dropcursor";
 import { gapCursor } from "prosemirror-gapcursor";
-import { buildToggleMarksOrigin } from "./plugins/marks/index";
+import { buildMarksStepOut } from "./plugins/marks/index";
 
 document.querySelector<HTMLDivElement>("#app")!.innerHTML =
   '<div id="editor"></div>';
@@ -19,7 +19,7 @@ schema.nodes.horizontal_rule.spec.selectable = false;
 const state = EditorState.create({
   schema,
   plugins: [
-    ...buildToggleMarksOrigin(),
+    ...buildMarksStepOut(),
     buildInputRules(schema),
     history(),
     keymap(buildKeymap(schema)),
