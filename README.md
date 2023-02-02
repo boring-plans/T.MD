@@ -1,18 +1,18 @@
-~~**testtesttest**~~
+# TMD Editor
 
-> tesg `te`st` test
+A simple markdown editor built on top of ProseMirror.
 
-test,
+## Roadmap
 
-`test` \` `rrrr`
+### v0.0.1
 
-`test` ww&nbsp;&nbsp;&nbsp;&nbsp;w
-yesy hhh hhh
-
-_testddd_
-
-`testd` d
-
-> - [ ] edddddd
-
-eee`test`
+- Target Release: Q1 2023
+- Overview: Basic syntax support
+   - Horizontal Rule
+   - Code Block
+   - Bold, Italic, Strikethrough
+   - Link
+   - Inline Code
+   - Sub, Sup
+   - Special Characters (e.g. &copy)
+   - Image
